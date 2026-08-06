@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta id="themeColor" name="theme-color" content="#1d4ed8">
+  <meta name="description" content="A small, installable, offline-first todo app built with plain JavaScript.">
+  <title>Focus Todo</title>
+
+  <script>
+    (() => {
+      const savedTheme = localStorage.getItem("focus-todo-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme = savedTheme ?? (prefersDark ? "dark" : "light");
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    })();
+  </script>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Plain JavaScript PWA</p>
+      <h1>Focus Todo</h1>
+    </div>
+
+    <div class="header-actions">
+      <span id="connectionStatus" class="status-pill" aria-live="polite">Online</span>
+      <button
+        id="themeToggle"
+        class="button button-secondary theme-toggle"
+        type="button"
+        aria-pressed="false"
+        aria-label="Switch to dark mode"
+      >
+        <span id="themeIcon" aria-hidden="true">☾</span>
+        <span id="themeLabel">Dark mode</span>
+      </button>
+      <button id="installButton" class="button button-secondary" type="button" hidden>
+        Install app
+      </button>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="panel task-composer" aria-labelledby="taskFormTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Create</p>
+          <h2 id="taskFormTitle">Add a task</h2>
+        </div>
+      </div>
+
+      <form id="taskForm" novalidate>
+        <input id="taskId" type="hidden">
+
+        <div class="field field-full">
+          <label for="taskTitle">Task</label>
+          <input
+            id="taskTitle"
+            name="title"
+            type="text"
+            maxlength="120"
+            placeholder="What needs to be done?"
+            autocomplete="off"
+            required
+          >
+          <p id="titleError" class="field-error" role="alert"></p>
+        </div>
+
+        <div class="field field-full">
+          <label for="taskDescription">Notes <span class="optional">Optional</span></label>
+          <textarea
+            id="taskDescription"
+            name="description"
+            rows="3"
+            maxlength="500"
+            placeholder="Add useful details"
+          ></textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="taskDueDate">Due date</label>
+            <input id="taskDueDate" name="dueDate" type="date">
+          </div>
+
+          <div class="field">
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button id="submitButton" class="button button-primary" type="submit">Add task</button>
+          <button id="cancelEditButton" class="button button-secondary" type="button" hidden>
+            Cancel edit
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel task-board" aria-labelledby="taskListTitle">
+      <div class="section-heading board-heading">
+        <div>
+          <p class="eyebrow">Your list</p>
+          <h2 id="taskListTitle">Tasks</h2>
+        </div>
+        <p id="taskSummary" class="task-summary" aria-live="polite">0 tasks</p>
+      </div>
+
+      <div class="toolbar">
+        <label class="search-field" for="searchInput">
+          <span class="sr-only">Search tasks</span>
+          <input id="searchInput" type="search" placeholder="Search tasks">
+        </label>
+
+        <div class="filter-group" aria-label="Filter tasks">
+          <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter-button" type="button" data-filter="active" aria-pressed="false">Active</button>
+          <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">Completed</button>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon" aria-hidden="true">✓</div>
+        <h3>No tasks yet</h3>
+        <p>Add your first task using the form.</p>
+      </div>
+
+      <ul id="taskList" class="task-list" aria-label="Todo tasks"></ul>
+
+      <div class="board-footer">
+        <button id="clearCompletedButton" class="text-button" type="button" disabled>
+          Clear completed
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <template id="taskTemplate">
+    <li class="task-card">
+      <div class="task-main-row">
+        <label class="check-control">
+          <input class="task-checkbox" type="checkbox">
+          <span class="checkmark" aria-hidden="true"></span>
+          <span class="sr-only">Mark task complete</span>
+        </label>
+
+        <div class="task-content">
+          <div class="task-title-row">
+            <h3 class="task-title"></h3>
+            <span class="priority-badge"></span>
+          </div>
+          <p class="task-description"></p>
+          <p class="task-meta"></p>
+        </div>
+
+        <div class="task-actions">
+          <button class="icon-button edit-button" type="button" aria-label="Edit task">Edit</button>
+          <button class="icon-button danger delete-button" type="button" aria-label="Delete task">Delete</button>
+        </div>
+      </div>
+    </li>
+  </template>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
