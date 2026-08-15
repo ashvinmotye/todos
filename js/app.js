@@ -53,14 +53,28 @@ function handleSubmit(event) {
   refresh();
 }
 
-function toggleTask(taskId) {
-  const task = state.tasks.find(item => item.id === taskId);
-  if (!task) return;
+function finishTaskToggle(task) {
   task.completed = !task.completed;
   task.updatedAt = new Date().toISOString();
   persist();
   refresh();
   showToast(task.completed ? "Task completed." : "Task reopened.");
+}
+
+function toggleTask(taskId, card) {
+  const task = state.tasks.find(item => item.id === taskId);
+  if (!task) return;
+
+  if (!task.completed && card) {
+    card.classList.add("is-completing");
+    const checkbox = card.querySelector(".task-checkbox");
+    if (checkbox) checkbox.disabled = true;
+    const delay = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 520;
+    window.setTimeout(() => finishTaskToggle(task), delay);
+    return;
+  }
+
+  finishTaskToggle(task);
 }
 
 function editTask(taskId) {
@@ -92,7 +106,6 @@ function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   const dark = theme === "dark";
   elements.themeIcon.textContent = dark ? "☀️" : "🌙";
-  elements.themeLabel.textContent = dark ? "Light mode" : "Dark mode";
   elements.themeButton.setAttribute("aria-label", `Switch to ${dark ? "light" : "dark"} mode`);
   document.querySelector('meta[name="theme-color"]').content = dark ? "#0b1220" : "#f5f7fb";
 }
@@ -165,7 +178,7 @@ elements.installButton.addEventListener("click", installApp);
 elements.taskList.addEventListener("change", event => {
   if (!(event.target instanceof HTMLInputElement) || event.target.dataset.action !== "toggle") return;
   const card = event.target.closest("[data-task-id]");
-  if (card) toggleTask(card.dataset.taskId);
+  if (card) toggleTask(card.dataset.taskId, card);
 });
 
 elements.taskList.addEventListener("click", event => {

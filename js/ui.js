@@ -7,7 +7,7 @@ export const elements = {
   activeCount: document.querySelector("#activeCount"), completedCount: document.querySelector("#completedCount"), clearCompletedButton: document.querySelector("#clearCompletedButton"),
   boardFooter: document.querySelector("#boardFooter"), installButton: document.querySelector("#installButton"), addTaskButton: document.querySelector("#addTaskButton"),
   taskModal: document.querySelector("#taskModal"), closeTaskModalButton: document.querySelector("#closeTaskModalButton"), themeButton: document.querySelector("#themeButton"),
-  themeIcon: document.querySelector("#themeIcon"), themeLabel: document.querySelector("#themeLabel"), settingsButton: document.querySelector("#settingsButton"),
+  themeIcon: document.querySelector("#themeIcon"), settingsButton: document.querySelector("#settingsButton"),
   greeting: document.querySelector("#greeting"), nameModal: document.querySelector("#nameModal"), nameForm: document.querySelector("#nameForm"),
   userName: document.querySelector("#userName"), nameError: document.querySelector("#nameError"), toast: document.querySelector("#toast")
 };

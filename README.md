@@ -9,6 +9,7 @@ A mobile-first, framework-free todo Progressive Web App built with HTML, CSS, an
 - Due dates, priorities, and remaining-time badges
 - First-launch name setup and a personalised greeting
 - Persistent light and dark themes
+- Animated task completion feedback
 - Create, complete, reopen, edit, and delete tasks
 - Browser persistence using `localStorage`
 - Offline app shell using a service worker

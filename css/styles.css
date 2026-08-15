@@ -65,12 +65,32 @@ h2 { margin-bottom: 0; font-size: 1.45rem; letter-spacing: -.03em; }
 .task-card { padding: 17px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); transition: transform 140ms ease, border-color 140ms ease; }
 .task-card:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); transform: translateY(-1px); }
 .task-card.is-completed { background: var(--surface-soft); }
+.task-card.is-completing { pointer-events: none; animation: task-complete 520ms cubic-bezier(.22,.75,.24,1) forwards; }
+.task-card.is-completing .checkmark { animation: check-celebrate 420ms cubic-bezier(.2,.9,.3,1); }
+.task-card.is-completing .task-title { animation: title-complete 420ms ease forwards; }
 .task-main-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: start; gap: 13px; }
 .check-control { position: relative; margin-top: 2px; }
 .task-checkbox { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .checkmark { width: 24px; height: 24px; display: grid; place-items: center; border: 2px solid var(--border); border-radius: 8px; background: var(--surface); }
 .task-checkbox:checked + .checkmark { border-color: var(--primary); background: var(--primary); }
 .task-checkbox:checked + .checkmark::after { content: "✓"; color: #fff; font-size: .82rem; font-weight: 900; }
+
+@keyframes check-celebrate {
+  0% { transform: scale(.72) rotate(-10deg); box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 45%, transparent); }
+  55% { transform: scale(1.22) rotate(4deg); box-shadow: 0 0 0 10px color-mix(in srgb, var(--primary) 0%, transparent); }
+  100% { transform: scale(1) rotate(0); box-shadow: none; }
+}
+
+@keyframes title-complete {
+  0%, 45% { color: var(--text); text-decoration-color: transparent; }
+  100% { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 2px; }
+}
+
+@keyframes task-complete {
+  0% { opacity: 1; transform: translateX(0) scale(1); }
+  55% { opacity: 1; transform: translateX(-4px) scale(1.01); border-color: color-mix(in srgb, var(--primary) 60%, var(--border)); }
+  100% { opacity: 0; transform: translateX(28px) scale(.97); }
+}
 .task-content { min-width: 0; }
 .task-title-row { display: flex; align-items: center; gap: 8px; }
 .task-title { min-width: 0; margin-bottom: 5px; overflow-wrap: anywhere; font-size: 1rem; line-height: 1.42; }
@@ -165,10 +185,9 @@ input[aria-invalid="true"] { border-color: var(--danger); }
 @media (max-width: 390px) {
   h1 { font-size: 2rem; }
   .greeting { font-size: .82rem; }
-  #themeLabel { display: none; }
   .header-button:not(.icon-only) { width: 40px; padding: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  *,*::before,*::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
