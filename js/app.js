@@ -61,15 +61,58 @@ function finishTaskToggle(task) {
   showToast(task.completed ? "Task completed." : "Task reopened.");
 }
 
+function createDustEffect(card) {
+  const rect = card.getBoundingClientRect();
+  const rootStyles = getComputedStyle(document.documentElement);
+  const cardStyles = getComputedStyle(card);
+  const palette = [
+    cardStyles.backgroundColor,
+    rootStyles.getPropertyValue("--primary").trim(),
+    rootStyles.getPropertyValue("--text").trim(),
+    rootStyles.getPropertyValue("--border").trim()
+  ];
+  const layer = document.createElement("div");
+  layer.className = "task-dust-layer";
+  Object.assign(layer.style, {
+    left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`
+  });
+
+  const particleCount = Math.min(132, Math.max(88, Math.round((rect.width * rect.height) / 380)));
+  for (let index = 0; index < particleCount; index += 1) {
+    const particle = document.createElement("span");
+    const size = 1 + Math.random() * 2.4;
+    const startX = Math.random() * rect.width;
+    const startY = Math.random() * rect.height;
+    const driftX = (Math.random() - 0.5) * 100;
+    const driftY = -35 - Math.random() * 105;
+    particle.className = "task-dust-particle";
+    particle.style.left = `${startX}px`;
+    particle.style.top = `${startY}px`;
+    particle.style.width = `${size}px`;
+    particle.style.height = `${size}px`;
+    particle.style.background = palette[Math.floor(Math.random() * palette.length)];
+    particle.style.setProperty("--dust-x", `${driftX}px`);
+    particle.style.setProperty("--dust-y", `${driftY}px`);
+    particle.style.setProperty("--dust-rotate", `${(Math.random() - 0.5) * 420}deg`);
+    particle.style.setProperty("--dust-delay", `${Math.random() * 380}ms`);
+    layer.append(particle);
+  }
+
+  document.body.append(layer);
+  window.setTimeout(() => layer.remove(), 2200);
+}
+
 function toggleTask(taskId, card) {
   const task = state.tasks.find(item => item.id === taskId);
   if (!task) return;
 
   if (!task.completed && card) {
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     card.classList.add("is-completing");
     const checkbox = card.querySelector(".task-checkbox");
     if (checkbox) checkbox.disabled = true;
-    const delay = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 520;
+    if (!reduceMotion) createDustEffect(card);
+    const delay = reduceMotion ? 0 : 1900;
     window.setTimeout(() => finishTaskToggle(task), delay);
     return;
   }
