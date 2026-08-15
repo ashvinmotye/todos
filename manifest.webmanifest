@@ -2,15 +2,15 @@
   "id": "./",
   "name": "Focus Todo",
   "short_name": "Focus",
-  "description": "A simple offline-first todo app built with plain JavaScript.",
+  "description": "A calm, offline-first task list for the things that matter.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f5f7fb",
-  "theme_color": "#1d4ed8",
+  "background_color": "#08101d",
+  "theme_color": "#0b1220",
   "categories": ["productivity", "utilities"],
   "icons": [
     {

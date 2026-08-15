@@ -2,21 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta id="themeColor" name="theme-color" content="#1d4ed8">
-  <meta name="description" content="A small, installable, offline-first todo app built with plain JavaScript.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="A calm, offline-first task list for the things that matter.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Focus Todo">
   <title>Focus Todo</title>
-
-  <script>
-    (() => {
-      const savedTheme = localStorage.getItem("focus-todo-theme");
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const theme = savedTheme ?? (prefersDark ? "dark" : "light");
-      document.documentElement.dataset.theme = theme;
-      document.documentElement.style.colorScheme = theme;
-    })();
-  </script>
-
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icons/icon-192.png" sizes="192x192">
   <link rel="apple-touch-icon" href="./icons/icon-192.png">
@@ -24,157 +16,92 @@
 </head>
 <body>
   <header class="app-header">
-    <div>
-      <p class="eyebrow">Plain JavaScript PWA</p>
+    <div class="header-copy">
+      <p id="greeting" class="greeting">Hello 👋</p>
       <h1>Focus Todo</h1>
+      <p class="tagline">Make space for what matters.</p>
     </div>
-
     <div class="header-actions">
-      <span id="connectionStatus" class="status-pill" aria-live="polite">Online</span>
-      <button
-        id="themeToggle"
-        class="button button-secondary theme-toggle"
-        type="button"
-        aria-pressed="false"
-        aria-label="Switch to dark mode"
-      >
-        <span id="themeIcon" aria-hidden="true">☾</span>
-        <span id="themeLabel">Dark mode</span>
+      <button id="themeButton" class="header-button" type="button" aria-label="Switch to light mode">
+        <span id="themeIcon" aria-hidden="true">☀️</span><span id="themeLabel">Light mode</span>
       </button>
-      <button id="installButton" class="button button-secondary" type="button" hidden>
-        Install app
-      </button>
+      <button id="settingsButton" class="header-button icon-only" type="button" aria-label="Change your name"><span aria-hidden="true">⚙️</span></button>
+      <button id="installButton" class="header-button" type="button" hidden>Install app</button>
     </div>
   </header>
 
   <main class="app-shell">
-    <section class="panel task-composer" aria-labelledby="taskFormTitle">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Create</p>
-          <h2 id="taskFormTitle">Add a task</h2>
-        </div>
-      </div>
-
-      <form id="taskForm" novalidate>
-        <input id="taskId" type="hidden">
-
-        <div class="field field-full">
-          <label for="taskTitle">Task</label>
-          <input
-            id="taskTitle"
-            name="title"
-            type="text"
-            maxlength="120"
-            placeholder="What needs to be done?"
-            autocomplete="off"
-            required
-          >
-          <p id="titleError" class="field-error" role="alert"></p>
-        </div>
-
-        <div class="field field-full">
-          <label for="taskDescription">Notes <span class="optional">Optional</span></label>
-          <textarea
-            id="taskDescription"
-            name="description"
-            rows="3"
-            maxlength="500"
-            placeholder="Add useful details"
-          ></textarea>
-        </div>
-
-        <div class="form-grid">
-          <div class="field">
-            <label for="taskDueDate">Due date</label>
-            <input id="taskDueDate" name="dueDate" type="date">
-          </div>
-
-          <div class="field">
-            <label for="taskPriority">Priority</label>
-            <select id="taskPriority" name="priority">
-              <option value="low">Low</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button id="submitButton" class="button button-primary" type="submit">Add task</button>
-          <button id="cancelEditButton" class="button button-secondary" type="button" hidden>
-            Cancel edit
-          </button>
-        </div>
-      </form>
-    </section>
-
     <section class="panel task-board" aria-labelledby="taskListTitle">
       <div class="section-heading board-heading">
-        <div>
-          <p class="eyebrow">Your list</p>
-          <h2 id="taskListTitle">Tasks</h2>
-        </div>
-        <p id="taskSummary" class="task-summary" aria-live="polite">0 tasks</p>
+        <div><p class="eyebrow">Your list</p><h2 id="taskListTitle">Tasks</h2></div>
+        <p id="taskSummary" class="task-summary" aria-live="polite">0 active</p>
       </div>
-
-      <div class="toolbar">
-        <label class="search-field" for="searchInput">
-          <span class="sr-only">Search tasks</span>
-          <input id="searchInput" type="search" placeholder="Search tasks">
-        </label>
-
-        <div class="filter-group" aria-label="Filter tasks">
-          <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">All</button>
-          <button class="filter-button" type="button" data-filter="active" aria-pressed="false">Active</button>
-          <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">Completed</button>
-        </div>
+      <div class="filter-group" role="tablist" aria-label="Task lists">
+        <button class="filter-button is-active" type="button" role="tab" data-filter="active" aria-selected="true">Active <span id="activeCount" class="tab-count">0</span></button>
+        <button class="filter-button" type="button" role="tab" data-filter="completed" aria-selected="false">Completed <span id="completedCount" class="tab-count">0</span></button>
       </div>
-
       <div id="emptyState" class="empty-state">
-        <div class="empty-icon" aria-hidden="true">✓</div>
-        <h3>No tasks yet</h3>
-        <p>Add your first task using the form.</p>
+        <div class="empty-icon" aria-hidden="true">✓</div><h3>Your list is clear</h3><p>Tap + to add something new.</p>
       </div>
-
       <ul id="taskList" class="task-list" aria-label="Todo tasks"></ul>
-
-      <div class="board-footer">
-        <button id="clearCompletedButton" class="text-button" type="button" disabled>
-          Clear completed
-        </button>
-      </div>
+      <div id="boardFooter" class="board-footer" hidden><button id="clearCompletedButton" class="text-button" type="button" disabled>Clear completed</button></div>
     </section>
   </main>
 
-  <template id="taskTemplate">
-    <li class="task-card">
-      <div class="task-main-row">
-        <label class="check-control">
-          <input class="task-checkbox" type="checkbox">
-          <span class="checkmark" aria-hidden="true"></span>
-          <span class="sr-only">Mark task complete</span>
-        </label>
+  <button id="addTaskButton" class="fab" type="button" aria-label="Add a task"><span class="fab-plus" aria-hidden="true">+</span><span class="fab-label">Add task</span></button>
 
-        <div class="task-content">
-          <div class="task-title-row">
-            <h3 class="task-title"></h3>
-            <span class="priority-badge"></span>
-          </div>
-          <p class="task-description"></p>
-          <p class="task-meta"></p>
-        </div>
-
-        <div class="task-actions">
-          <button class="icon-button edit-button" type="button" aria-label="Edit task">Edit</button>
-          <button class="icon-button danger delete-button" type="button" aria-label="Delete task">Delete</button>
-        </div>
+  <div id="taskModal" class="modal" hidden>
+    <button class="modal-backdrop" type="button" data-close-task-modal aria-label="Close task form"></button>
+    <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="taskFormTitle">
+      <div class="modal-handle" aria-hidden="true"></div>
+      <div class="modal-header">
+        <div><p class="eyebrow">Create</p><h2 id="taskFormTitle">Add a task</h2></div>
+        <button id="closeTaskModalButton" class="close-button" type="button" aria-label="Close">×</button>
       </div>
-    </li>
+      <form id="taskForm" novalidate>
+        <input id="taskId" type="hidden">
+        <div class="field field-full">
+          <label for="taskTitle">Task</label>
+          <input id="taskTitle" name="title" type="text" maxlength="120" placeholder="What needs to be done?" autocomplete="off" required>
+          <p id="titleError" class="field-error" role="alert"></p>
+        </div>
+        <div class="field field-full">
+          <label for="taskDescription">Notes <span class="optional">Optional</span></label>
+          <textarea id="taskDescription" name="description" rows="3" maxlength="500" placeholder="Add useful details"></textarea>
+        </div>
+        <div class="form-grid">
+          <div class="field date-field"><label for="taskDueDate">Due date</label><input id="taskDueDate" name="dueDate" type="date"></div>
+          <div class="field"><label for="taskPriority">Priority</label><select id="taskPriority" name="priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+        </div>
+        <div class="form-actions">
+          <button id="submitButton" class="button button-primary" type="submit">Add task</button>
+          <button id="cancelEditButton" class="button button-secondary" type="button" hidden>Cancel edit</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div id="nameModal" class="modal" hidden>
+    <div class="modal-backdrop static"></div>
+    <section class="modal-sheet name-sheet" role="dialog" aria-modal="true" aria-labelledby="nameModalTitle">
+      <div class="welcome-mark" aria-hidden="true">👋</div><p class="eyebrow">Welcome to Focus</p>
+      <h2 id="nameModalTitle">What should we call you?</h2>
+      <p class="modal-intro">Your name stays on this device and makes Focus feel a little more yours.</p>
+      <form id="nameForm" novalidate>
+        <div class="field"><label for="userName">Your name</label><input id="userName" name="userName" type="text" maxlength="40" autocomplete="name" placeholder="Enter your name" required><p id="nameError" class="field-error" role="alert"></p></div>
+        <button class="button button-primary button-full" type="submit">Continue</button>
+      </form>
+    </section>
+  </div>
+
+  <template id="taskTemplate">
+    <li class="task-card"><div class="task-main-row">
+      <label class="check-control"><input class="task-checkbox" type="checkbox"><span class="checkmark" aria-hidden="true"></span><span class="sr-only">Mark task complete</span></label>
+      <div class="task-content"><div class="task-title-row"><h3 class="task-title"></h3><span class="priority-badge"></span></div><p class="task-description"></p><div class="task-meta"><span class="due-date"></span><span class="time-left-badge"></span></div></div>
+      <div class="task-actions"><button class="icon-button edit-button" type="button" aria-label="Edit task">Edit</button><button class="icon-button danger delete-button" type="button" aria-label="Delete task">Delete</button></div>
+    </div></li>
   </template>
-
   <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-
   <script type="module" src="./js/app.js"></script>
 </body>
 </html>

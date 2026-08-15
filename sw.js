@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-todo-shell-v2";
+const CACHE_NAME = "focus-todo-shell-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -53,18 +53,15 @@ self.addEventListener("fetch", event => {
   }
 
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) return cachedResponse;
-
-      return fetch(event.request).then(networkResponse => {
+    fetch(event.request)
+      .then(networkResponse => {
         if (!networkResponse || networkResponse.status !== 200) {
           return networkResponse;
         }
-
         const responseCopy = networkResponse.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseCopy));
         return networkResponse;
-      });
-    })
+      })
+      .catch(() => caches.match(event.request))
   );
 });

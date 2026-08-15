@@ -1,16 +1,19 @@
 # Focus Todo PWA
 
-A framework-free todo Progressive Web App built with HTML, CSS, and plain JavaScript.
+A mobile-first, framework-free todo Progressive Web App built with HTML, CSS, and plain JavaScript.
 
 ## Features
 
-- Create, edit, complete, delete, search, and filter tasks
-- Due dates and priorities
+- Add and edit tasks in a mobile bottom-sheet modal
+- Separate Active and Completed lists
+- Due dates, priorities, and remaining-time badges
+- First-launch name setup and a personalised greeting
+- Persistent light and dark themes
+- Create, complete, reopen, edit, and delete tasks
 - Browser persistence using `localStorage`
 - Offline app shell using a service worker
 - Install prompt on supporting browsers
-- Responsive and keyboard-accessible interface
-- Persistent light/dark mode with system-theme detection
+- Mobile-first, responsive, and keyboard-accessible interface
 - No build tools and no dependencies
 
 ## Run locally
@@ -34,20 +37,34 @@ npx serve .
 
 ## Test the PWA
 
-1. Open the app in Chrome or Edge.
+1. Open the app in a modern browser.
 2. Add a few tasks, then refresh the page.
 3. In DevTools, open **Application → Service Workers**.
 4. Enable **Offline** in DevTools and reload.
-5. Use the browser install action or the app's **Install app** button when available.
+5. Use the browser install action or the app's **Install app** button when available. On iPhone, open the site in Safari and use **Share → Add to Home Screen**.
+
+## Deploy to GitHub Pages
+
+Push every project file to the repository root, then configure:
+
+```text
+Settings → Pages
+Source: Deploy from a branch
+Branch: main
+Folder: /(root)
+```
+
+The included `.nojekyll` file keeps deployment as a plain static site.
 
 ## Important development note
 
-When changing cached files, update `CACHE_NAME` in `sw.js`, for example from `focus-todo-shell-v2` to `focus-todo-shell-v3`. This causes old caches to be removed when the new service worker activates.
+When changing cached files, update `CACHE_NAME` in `sw.js`. This causes old caches to be removed when the new service worker activates.
 
 ## File structure
 
 ```text
 focus-todo-pwa/
+├── .nojekyll
 ├── index.html
 ├── manifest.webmanifest
 ├── sw.js
@@ -62,10 +79,4 @@ focus-todo-pwa/
     └── icon-512.png
 ```
 
-## Suggested next steps
-
-- Replace `localStorage` with IndexedDB
-- Add task categories and recurring tasks
-- Add drag-and-drop ordering
-- Add cloud sync and authentication
-- Add notifications for due tasks
+Task data, the saved user name, and the selected theme stay on the current device. They are not yet synchronised to the cloud.
