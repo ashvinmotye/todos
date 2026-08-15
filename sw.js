@@ -1,4 +1,4 @@
-const CACHE_NAME = "focus-todo-shell-v8";
+const CACHE_NAME = "focus-todo-shell-v13";
 const APP_SHELL = [
   "./",
   "./index.html",

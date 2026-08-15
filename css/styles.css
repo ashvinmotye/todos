@@ -62,10 +62,11 @@ h2 { margin-bottom: 0; font-size: 1.45rem; letter-spacing: -.03em; }
 .empty-state p { margin-bottom: 0; }
 
 .task-list { margin: 0; padding: 0; display: grid; gap: 12px; list-style: none; }
+.task-list.is-completion-locked .task-card:not(.is-completing) { pointer-events: none; }
 .task-card { padding: 17px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); transition: transform 140ms ease, border-color 140ms ease; }
 .task-card:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); transform: translateY(-1px); }
 .task-card.is-completed { background: var(--surface-soft); }
-.task-card.is-completing { pointer-events: none; animation: task-disintegrate 1650ms cubic-bezier(.22,.75,.24,1) forwards; }
+.task-card.is-completing { pointer-events: none; animation: task-disintegrate 850ms cubic-bezier(.22,.75,.24,1) forwards; }
 .task-card.is-completing .checkmark { animation: check-celebrate 420ms cubic-bezier(.2,.9,.3,1); }
 .task-card.is-completing .task-title { animation: title-complete 500ms ease forwards; }
 .task-main-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: start; gap: 13px; }
@@ -87,9 +88,9 @@ h2 { margin-bottom: 0; font-size: 1.45rem; letter-spacing: -.03em; }
 }
 
 @keyframes task-disintegrate {
-  0%, 28% { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
-  58% { opacity: .72; filter: blur(1.5px) saturate(.8); transform: scale(.995); }
-  100% { opacity: 0; filter: blur(9px) saturate(.25); transform: scale(.975); }
+  0%, 16% { opacity: 1; filter: blur(0) saturate(1); transform: scale(1); }
+  55% { opacity: .28; filter: blur(3px) saturate(.65); transform: scale(.99); }
+  100% { opacity: 0; filter: blur(10px) saturate(.2); transform: scale(.975); }
 }
 
 .task-dust-layer { position: fixed; z-index: 70; pointer-events: none; }
