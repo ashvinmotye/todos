@@ -4,7 +4,6 @@ import { elements, getTaskFormValues, openTaskModal, closeTaskModal, populateTas
 const THEME_KEY = "focus-todo.theme.v1";
 const USER_NAME_KEY = "focus-todo.user-name.v1";
 const state = { tasks: loadTasks(), filter: "active", deferredInstallPrompt: null };
-let completionAnimationInProgress = false;
 
 function persist() {
   if (!saveTasks(state.tasks)) showToast("Tasks could not be saved in this browser.");
@@ -54,129 +53,14 @@ function handleSubmit(event) {
   refresh();
 }
 
-function captureTaskPositions(excludedTaskId) {
-  return new Map(
-    [...elements.taskList.querySelectorAll("[data-task-id]")]
-      .filter(card => card.dataset.taskId !== excludedTaskId)
-      .map(card => [card.dataset.taskId, card.getBoundingClientRect().top + window.scrollY])
-  );
-}
-
-function animateTaskReflow(previousPositions, duration = 520) {
-  if (!previousPositions?.size || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  requestAnimationFrame(() => {
-    elements.taskList.querySelectorAll("[data-task-id]").forEach(card => {
-      const previousTop = previousPositions.get(card.dataset.taskId);
-      if (previousTop === undefined) return;
-      const currentTop = card.getBoundingClientRect().top + window.scrollY;
-      const distance = previousTop - currentTop;
-      if (Math.abs(distance) < 1) return;
-
-      const animation = card.animate(
-        [{ transform: `translateY(${distance}px)` }, { transform: "translateY(0)" }],
-        { duration, easing: "cubic-bezier(.22,.78,.24,1)", fill: "both" }
-      );
-      animation.addEventListener("finish", () => animation.cancel(), { once: true });
-    });
-  });
-}
-
-function finishTaskToggle(task, previousPositions) {
+function toggleTask(taskId) {
+  const task = state.tasks.find(item => item.id === taskId);
+  if (!task) return;
   task.completed = !task.completed;
   task.updatedAt = new Date().toISOString();
   persist();
   refresh();
-  animateTaskReflow(previousPositions);
   showToast(task.completed ? "Task completed." : "Task reopened.");
-}
-
-function setCompletionLock(locked) {
-  completionAnimationInProgress = locked;
-  elements.taskList.classList.toggle("is-completion-locked", locked);
-  elements.taskList.setAttribute("aria-busy", String(locked));
-}
-
-function detachCompletingCard(card, previousPositions) {
-  const rect = card.getBoundingClientRect();
-  Object.assign(card.style, {
-    position: "fixed",
-    left: `${rect.left}px`,
-    top: `${rect.top}px`,
-    width: `${rect.width}px`,
-    height: `${rect.height}px`,
-    margin: "0",
-    zIndex: "65"
-  });
-  animateTaskReflow(previousPositions, 260);
-}
-
-function createDustEffect(card) {
-  const rect = card.getBoundingClientRect();
-  const rootStyles = getComputedStyle(document.documentElement);
-  const cardStyles = getComputedStyle(card);
-  const palette = [
-    cardStyles.backgroundColor,
-    rootStyles.getPropertyValue("--primary").trim(),
-    rootStyles.getPropertyValue("--text").trim(),
-    rootStyles.getPropertyValue("--border").trim()
-  ];
-  const layer = document.createElement("div");
-  layer.className = "task-dust-layer";
-  Object.assign(layer.style, {
-    left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px`
-  });
-
-  const particleCount = Math.min(132, Math.max(88, Math.round((rect.width * rect.height) / 380)));
-  for (let index = 0; index < particleCount; index += 1) {
-    const particle = document.createElement("span");
-    const size = 1 + Math.random() * 2.4;
-    const startX = Math.random() * rect.width;
-    const startY = Math.random() * rect.height;
-    const driftX = (Math.random() - 0.5) * 100;
-    const driftY = -35 - Math.random() * 105;
-    particle.className = "task-dust-particle";
-    particle.style.left = `${startX}px`;
-    particle.style.top = `${startY}px`;
-    particle.style.width = `${size}px`;
-    particle.style.height = `${size}px`;
-    particle.style.background = palette[Math.floor(Math.random() * palette.length)];
-    particle.style.setProperty("--dust-x", `${driftX}px`);
-    particle.style.setProperty("--dust-y", `${driftY}px`);
-    particle.style.setProperty("--dust-rotate", `${(Math.random() - 0.5) * 420}deg`);
-    particle.style.setProperty("--dust-delay", `${Math.random() * 380}ms`);
-    layer.append(particle);
-  }
-
-  document.body.append(layer);
-  window.setTimeout(() => layer.remove(), 2200);
-}
-
-function toggleTask(taskId, card) {
-  const task = state.tasks.find(item => item.id === taskId);
-  if (!task || completionAnimationInProgress) return;
-
-  if (!task.completed && card) {
-    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const previousPositions = captureTaskPositions(task.id);
-    setCompletionLock(true);
-    const checkbox = card.querySelector(".task-checkbox");
-    if (checkbox) checkbox.disabled = true;
-    if (!reduceMotion) createDustEffect(card);
-    card.classList.add("is-completing");
-    if (!reduceMotion) detachCompletingCard(card, previousPositions);
-    const delay = reduceMotion ? 0 : 1550;
-    window.setTimeout(() => {
-      try {
-        finishTaskToggle(task);
-      } finally {
-        setCompletionLock(false);
-      }
-    }, delay);
-    return;
-  }
-
-  finishTaskToggle(task, captureTaskPositions(task.id));
 }
 
 function editTask(taskId) {
@@ -207,9 +91,9 @@ function clearCompleted() {
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   const dark = theme === "dark";
-  elements.themeIcon.textContent = dark ? "☀️" : "🌙";
+  elements.themeIcon.textContent = dark ? "☀" : "☾";
   elements.themeButton.setAttribute("aria-label", `Switch to ${dark ? "light" : "dark"} mode`);
-  document.querySelector('meta[name="theme-color"]').content = dark ? "#0b1220" : "#f5f7fb";
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#193546" : "#e9f8fb";
 }
 
 function initialiseTheme() {
@@ -280,16 +164,10 @@ elements.installButton.addEventListener("click", installApp);
 elements.taskList.addEventListener("change", event => {
   if (!(event.target instanceof HTMLInputElement) || event.target.dataset.action !== "toggle") return;
   const card = event.target.closest("[data-task-id]");
-  if (completionAnimationInProgress) {
-    const task = state.tasks.find(item => item.id === card?.dataset.taskId);
-    event.target.checked = Boolean(task?.completed);
-    return;
-  }
-  if (card) toggleTask(card.dataset.taskId, card);
+  if (card) toggleTask(card.dataset.taskId);
 });
 
 elements.taskList.addEventListener("click", event => {
-  if (completionAnimationInProgress) return;
   const button = event.target.closest("button[data-action]");
   const card = button?.closest("[data-task-id]");
   if (!button || !card) return;

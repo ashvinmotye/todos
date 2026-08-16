@@ -2,15 +2,15 @@
   "id": "./",
   "name": "Focus Todo",
   "short_name": "Focus",
-  "description": "A calm, offline-first task list for the things that matter.",
+  "description": "A focused, offline-first task list for the things that matter.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#08101d",
-  "theme_color": "#0b1220",
+  "background_color": "#193546",
+  "theme_color": "#193546",
   "categories": ["productivity", "utilities"],
   "icons": [
     {

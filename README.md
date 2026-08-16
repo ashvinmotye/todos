@@ -1,15 +1,16 @@
 # Focus Todo PWA
 
-A mobile-first, framework-free todo Progressive Web App built with HTML, CSS, and plain JavaScript.
+A mobile-first, framework-free todo Progressive Web App with a premium mission-control interface inspired by Level90.
 
 ## Features
 
+- Level90-style glass cards, Active/Completed tabs, and a halo-orb add button
 - Add and edit tasks in a mobile bottom-sheet modal
-- Separate Active and Completed lists
+- Separate Active and Completed views
 - Due dates, priorities, and remaining-time badges
 - First-launch name setup and a personalised greeting
 - Persistent light and dark themes
-- Dust-disintegration task completion animation
+- Immediate, reliable task completion with no delayed removal animation
 - Create, complete, reopen, edit, and delete tasks
 - Browser persistence using `localStorage`
 - Offline app shell using a service worker
